@@ -30,6 +30,13 @@ def test_criar_contato(api_client):
     assert Contato.objects.filter(nome = "Novo Contato").exists() #faz a confirmação se o contato foi realmente criado
 
 @pytest.mark.django_db
+def test_criar_contato_invalido(api_client):
+    url = reverse("contato-list")
+    data = {"nome": "Sem Email"}
+    response = api_client.post(url, data, format='json')
+    assert response.status_code == 400
+
+@pytest.mark.django_db
 def test_listar_contatos(api_client, contato_exemplo): #indica que o teste vai acessar o banco de dados - teste cria e consulta objetos Contato
     url = reverse ("contato-list") #rota da lista de contatos GET e POST
     response = api_client.get(url) 
@@ -40,3 +47,4 @@ def test_listar_contatos(api_client, contato_exemplo): #indica que o teste vai a
     (c["nome"] == "Miguel Teste" and c ["email"] == "miguel@teste.com"
       for c in data), 
     f"Contato esperado não encontrado em:{data}" #lista os dados em .json e acusa o erro
+
