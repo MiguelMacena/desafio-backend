@@ -63,3 +63,26 @@ def test_excluir_contato(api_client, contato_exemplo):#objetos necessários
     response = api_client.delete(url) #o retorno deve ser o DELETE do id buscado pelo args
     assert response.status_code == 204 #valida se deu tudo certo
     assert not Contato.objects.filter(id= contato_exemplo.id).exists() #faz uma consulta tentado encontrar o contato que foi deletado, o EXISTS retorna verdadeiro se existir e o NOT inverte isso
+
+#teste de integração geral - pytest
+@pytest.mark.django_db
+def test_fluxo_completo_contato(api_client):
+    create_url = reverse("contato-list") #nome registrado no router do View Set
+    data = {"nome":"Miguel", "email":"miguel@teste.com", "telefone":"1199999999"} #dados simulados para POST
+    response = api_client.post(create_url, data, format="json") #garante o formato Json e fornece o tipo de requisição desejada
+    assert response.status_code == 201 # garante se retornou 201 Created
+    contato_id = response.json()["id"] #pega o ID do contato criado
+
+    list_response = api_client.get(create_url) #lista contatos e valida se o novo está criado
+    assert any(c["id"] == contato_id for c in list_response.json()) #valida se o contato recem-criado está presente na lista
+
+    update_url = reverse("contato-detail", args=[contato_id]) #pega o ID para inserir na rota do PATCH
+    update_data = {"nome": "Miguel Atualizado"} #Passa dado que será atualizado
+    update_response = api_client.patch(update_url, update_data, format="json") #garante que o retorno seja em Json e informa a requisição que dever ser feita
+    assert update_response.status_code == 200 #valida se retorna 200 Sucess
+
+    delete_response = api_client.delete(update_url) # faz uma requisição delete na mesma URL
+    assert delete_response.status_code == 204 #valida se retornou 204 - Sem conteudo
+
+    final_list = api_client.get(create_url) #valida se o ID foi removido do banco 
+    assert not any(c["id"] == contato_id for c in final_list.json())
