@@ -37,7 +37,7 @@ def test_criar_contato_invalido(api_client):
     assert response.status_code == 400
 
 @pytest.mark.django_db
-def test_listar_contatos(api_client, contato_exemplo): #indica que o teste vai acessar o banco de dados - teste cria e consulta objetos Contato
+def test_listar_contato(api_client, contato_exemplo): #indica que o teste vai acessar o banco de dados - teste cria e consulta objetos Contato
     url = reverse ("contato-list") #rota da lista de contatos GET e POST
     response = api_client.get(url) 
     assert response.status_code == 200 #valida se deu certo a requisição
@@ -48,3 +48,18 @@ def test_listar_contatos(api_client, contato_exemplo): #indica que o teste vai a
       for c in data), 
     f"Contato esperado não encontrado em:{data}" #lista os dados em .json e acusa o erro
 
+@pytest.mark.django_db
+def test_editar_contato(api_client, contato_exemplo):
+    url = reverse("contato-detail", args=[contato_exemplo.id]) # reverse gera uma URL automática a partir do nome da rota/ parametro args insere o ID do contato na URL
+    data = {"nome": "Miguel Atualizado"}
+    response = api_client.patch(url, data, format='json') 
+    assert response.status_code == 200 #valida se deu tudo certo na requisição
+    contato_exemplo.refresh_from_db() #atualiza com os dados mais recentes o Banco de Dados
+    assert contato_exemplo.nome == "Miguel Atualizado" #valida se o nome foi alterado corretamente no Banco de Dados após a requisição
+
+@pytest.mark.django_db
+def test_excluir_contato(api_client, contato_exemplo):#objetos necessários
+    url = reverse ("contato-detail", args=[contato_exemplo.id]) #reverse gera URL de acordo com o nome da rota / args traz o id automático do contato
+    response = api_client.delete(url) #o retorno deve ser o DELETE do id buscado pelo args
+    assert response.status_code == 204 #valida se deu tudo certo
+    assert not Contato.objects.filter(id= contato_exemplo.id).exists() #faz uma consulta tentado encontrar o contato que foi deletado, o EXISTS retorna verdadeiro se existir e o NOT inverte isso
