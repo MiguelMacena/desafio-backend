@@ -1,0 +1,149 @@
+{
+	"info": {
+		"_postman_id": "fef7beb7-31b4-4b66-9eb9-db125d28a63d",
+		"name": "Contatos",
+		"description": "# Contatos API\n\nAPI responsável pelo gerenciamento de contatos.\n\nPermite realizar operações de criação, listagem, atualização e exclusão de contatos cadastrados.\n\n## Endpoints disponíveis\n\n- **GET /api/contatos/** → Lista todos os contatos cadastrados\n    \n- **POST /api/contatos/** → Cria um novo contato\n    \n- **PATCH /api/contatos/{id}/** → Atualiza parcialmente um contato\n    \n- **DELETE /api/contatos/{id}/** → Exclui um contato\n    \n\n## Regras gerais\n\n- O campo **email** é único para cada contato.\n    \n- Todos os retornos seguem o formato **JSON**.\n    \n- Autenticação: **não requerida** (ambiente local de testes).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43701875"
+	},
+	"item": [
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Listar Contato",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": \"1\"\r\n  \r\n\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/contatos/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contatos",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Essa API retorna a lista completa de contatos cadastrados no sistema.\n\n### Status esperados:\n\n- 200 OK – Retorno bem-sucedido\n    \n- 500 Internal Server Error – Erro inesperado no servidor\n    \n\n### Exemplo de Request:\n\n```\nGET {{baseURL}}/api/contatos/\n\n ```\n\n### Exemplo de response:\n\n``` json\n[\n  {\n    \"id\": 1,\n    \"nome\": \"Miguel\",\n    \"email\": \"miguel@teste.com\",\n    \"telefone\": \"1199999999\",\n    \"data_criacao\": \"2025-11-11T00:23:21.976540Z\",\n    \"data_atualizacao\": \"2025-11-11T00:23:21.976553Z\"\n  }\n  {\n    \"id\": 2,\n    \"nome\": \"João Silva\",\n    \"email\": \"joao@teste.com\",\n    \"telefone\": \"11988887777\"\n    \"data_criacao\": \"2025-11-11T00:23:21.976540Z\",\n    \"data_atualizacao\": \"2025-11-11T00:23:21.976553Z\"\n  }\n]\n\n ```"
+		},
+		{
+			"name": "POST",
+			"item": [
+				{
+					"name": "Criar Contato",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"{{$randomNamePrefix}}\",\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"telefone\": \"55119999999\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/contatos/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contatos",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Essa API permite a inserção de contatos no cadastro do sistema\n\n### Status esperados:\n\n- 201 OK – Contato criado com sucesso\n    \n- 400 Bad Request - Dados inválidos ou e-mail duplicado\n    \n\n### Parâmetros esperados:\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| nome | string | ✅ | Nome do contato |\n| email | string | ✅ | E-mail único e válido |\n| telefone | string | ✅ | Telefone de contato |\n\n### Exemplo de request:\n\n``` json\n[\n  {\n    \"id\": 1,\n    \"nome\": \"Miguel\",\n    \"email\": \"miguel@teste.com\",\n    \"telefone\": \"1199999999\"\n  }\n\n ```"
+		},
+		{
+			"name": "PATCH",
+			"item": [
+				{
+					"name": "Editar Contato",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"{{$randomNamePrefix}\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/contatos/{{id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contatos",
+								"{{id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Essa API permite alterar apenas os campos desejados\n\n### Status esperados:\n\n- 200 OK – Contato atualizado com sucesso\n    \n- 400 Bad Request – Dados inválidos\n    \n- 404 Not Found – Contato não encontrado\n    \n\n### Parâmetros esperados:\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| nome | string | ❌ | Nome do contato |\n| email | string | ❌ | E-mail do contato |\n| telefone | string | ❌ | Telefone do contato |\n\n### Exemplo de request:\n\n``` json\n[\n  {\n    \"id\": 1,\n    \"nome\": \"João Atualizado\",\n  }\n]\n\n ```"
+		},
+		{
+			"name": "DELETE",
+			"item": [
+				{
+					"name": "Deletar Contato",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Miguel Atualizado\"\r\n\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/contatos/{{id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contatos",
+								"{{id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Essa API Remove permanentemente um contato existente com base no seu ID\n\n### Status esperados:\n\n- 204 No Content – Contato excluído com sucesso\n    \n- 404 Not Found – Contato não encontrado  \n    \n\n### Exemplo de Request:\n\n```\nDELETE {{baseURL}}/api/contatos/{{id}}/\n\n ```"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
