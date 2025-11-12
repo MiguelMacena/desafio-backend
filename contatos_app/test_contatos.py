@@ -72,9 +72,12 @@ def test_fluxo_completo_contato(api_client):
     response = api_client.post(create_url, data, format="json") #garante o formato Json e fornece o tipo de requisição desejada
     assert response.status_code == 201 # garante se retornou 201 Created
     contato_id = response.json()["id"] #pega o ID do contato criado
+    
 
     list_response = api_client.get(create_url) #lista contatos e valida se o novo está criado
-    assert any(c["id"] == contato_id for c in list_response.json()) #valida se o contato recem-criado está presente na lista
+    lista = list_response.json()
+    contatos_final = lista.get("data", []) #acessa a lista real dentro da chave 'data'
+    assert any(c["id"] == contato_id for c in contatos_final) #valida se o contato recem-criado está presente na lista
 
     update_url = reverse("contato-detail", args=[contato_id]) #pega o ID para inserir na rota do PATCH
     update_data = {"nome": "Miguel Atualizado"} #Passa dado que será atualizado
@@ -85,4 +88,5 @@ def test_fluxo_completo_contato(api_client):
     assert delete_response.status_code == 204 #valida se retornou 204 - Sem conteudo
 
     final_list = api_client.get(create_url) #valida se o ID foi removido do banco 
-    assert not any(c["id"] == contato_id for c in final_list.json())
+    final_data = final_list.json().get("data",[]) #ajuste realizado devido a novo campo "origem" inserido pelo redis - pega o json, entra dentro de data que possui a lista correta    
+    assert not any(c["id"] == contato_id for c in final_data)
