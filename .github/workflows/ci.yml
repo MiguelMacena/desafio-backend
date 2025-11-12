@@ -21,8 +21,12 @@ jobs:
 
       - name: Instalar Dependências
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --force-reinstall -r requirements.txt
+          pip list
+
 
       - name: Executar testes com Pytest
+        env:
+          DJANGO_SETTINGS_MODULE: desafio_backend.settings
         run: pytest -v
