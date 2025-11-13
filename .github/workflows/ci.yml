@@ -10,6 +10,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        options: >-
+          --health-cmd="pg_isready -U ${{ secrets.DB_USER }}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout de Código
         uses: actions/checkout@v4
@@ -17,7 +32,7 @@ jobs:
       - name: Configurar versão do Python
         uses: actions/setup-python@v5
         with:
-          pytyon-version: '3.10'
+          python-version: '3.10'
 
       - name: Instalar Dependências
         run: |
@@ -25,4 +40,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Executar testes com Pytest
+        env:
+          DJANGO_DB_NAME: ${{ secrets.DB_NAME }}
+          DJANGO_DB_USER: ${{ secrets.DB_USER }}
+          DJANGO_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DJANGO_DB_HOST: ${{ secrets.DB_HOST }}
+          DJANGO_DB_PORT: ${{ secrets.DB_PORT }}
         run: pytest -v
