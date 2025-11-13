@@ -2,31 +2,40 @@ name: CI - Testes Automáticos
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main ]
   pull_request:
-    branches: [main, develop]
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout de Código
-        uses: actions/checkout@v4
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-      - name: Configurar versão do Python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
-      - name: Instalar Dependências
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --force-reinstall -r requirements.txt
-          pip list
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir -r requirements.txt
 
+      - name: Check installed packages
+        run: pip show django-cors-headers
 
-      - name: Executar testes com Pytest
-        env:
-          DJANGO_SETTINGS_MODULE: desafio_backend.settings
-        run: pytest -v
+      - name: Run tests
+        run: pytest --maxfail=1 --disable-warnings -q
